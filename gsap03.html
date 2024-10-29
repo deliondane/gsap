@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scroll Effect03</title>
+  <title>Document</title>
   <style>
     * {
       margin: 0;
@@ -257,49 +257,44 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollToPlugin.min.js"></script>
   <script>
-    //1. 한개의 섹션을 고정시키기
-    //const panel = document.querySelector('#section1');
+    //1 한개의 섹션을 고정시키기
+    const panel = document.querySelector("#section1");
 
-    /* 
-    ScrollTrigger.create({
-      trigger: panel,
-      start: 'top top',
-      pin: true,
-      pinSpacing: false //패널 밑에 여백이 생길 수 있는 부분을 제거
-    })
-      */
+    // ScrollTrigger.create({
+    //   trigger: panel,//트리거를 panel로 설정
+    //   start: "top top",
+    //   pin: true,
+    //   pinSpacing: false //패널 밑에 여백이 생길 수 있는 부분을 제거
+    // })
 
-    //2. 여러개 섹션 고정시키기
-    //gsap.utils.toArray를 사용하면 여러개의 섹션을 다중 선택하여 forEach메서드로 섹션을 순회하며 ScrollTrigger를 한번에 적용할 수 있다
-    /*
-    gsap.utils.toArray(".parallax__item").forEach((panel, i) => {
-      ScrollTrigger.create({
-        trigger: panel,
-        start: 'top top',
-        pin: true,
-        pinSpacing: false
-      })
-    })
-      */
+    //2 여러개 섹션 고정시키기
+    //gsap.utils.toArray를 사용하면 여러개의 섹션을 다중 선택하여 forEach메서드로 섹션을 순회하며 ScrollTrigger를 한번에 적용할 수 있다.
+    // gsap.utils.toArray(".parallax__item").forEach((panel, i) => {
+    //   ScrollTrigger.create({
+    //     trigger:panel,
+    //     start: "top top",
+    //     pin:true,
+    //     pinSpacing: false
+    //   })
+    // })
 
     //3. 스냅 고정 효과 만들기
     //.parallax__item으로 선택된 모든 요소를 배열로 변환(panels)
-    const panels = gsap.utils.toArray(".parallax__item");
+    let panels = gsap.utils.toArray(".parallax__item");
 
-    //panels의 각 요소에 대해 ScrollTrigger.create를 호출하여 스크롤 트리거를 생성
-    //각 패널을 지정하고 start를 패널의 상단이 뷰포트의 상단과 일치할 때 트리거가 시작되도록 작성하고 tops 배열에 저장
+    //panels의 각 요소에 대해 ScrollTrigger.create를 호출하여 스크롤 트리거를 생성합니다.
+    //각 패널을 지정하고 start를 패널의 상단이 뷰포트의 상단과 일치할 때 트리거가 시작되도록 작성하고 tops배열에 저장
     let tops = panels.map(panel => ScrollTrigger.create({
-      trigger: panel, 
-      start: 'top top'
+      trigger: panel,
+      start: "top top"
     }))
 
-    //panels배열의 각 패널에 대해 ScrollTrigger.create를 호출
+    //panels배열의 각 패널에 대해 ScrollTrigger.create를 호출합니다.
     panels.forEach((panel, i) => {
       ScrollTrigger.create({
         trigger: panel,
-        //패널의 높이가 윈도우의 높이보다 작으면 'top top',
-        // 그렇지 않으면 'bottom bottom'에서 패널의 고정 시작위치를 결정
-        start: () => panel.offsetHeight < window.innerHeight ? "top top" : "bottom bottom",
+        //패널의 높이가 윈도우의 높이보다 작으면 "top top"에서 시작하고, 그렇지 않으면 "bottom bottom"에서 시작합니다(이 조건에 따라 패널의 고정 시작위치를 결정합니다.)
+        start: () => panel.offsetHeight < window.innerHeight ? "top top": "bottom bottom",
         pin: true,
         pinSpacing: false
       })
@@ -307,31 +302,22 @@
 
     //전체 페이지에 대한 또 다른 ScrollTrigger를 생성하여 snap효과를 구현
     ScrollTrigger.create({
-      snap: { //snap속성은 스크롤 위치가 가장 가까운 패널 시작 위치로 스냅되도록 설정
-        snapTo: (progress, self) => { //snapTo함수는 현재 스크롤 진행 상황(progress)과 self객체를 인자로 받아 스냅위치를 계산
+      snap: {//snap속성은 스크롤 위치가 가장 가까운 패널 시작 위치로 스냅되도록 설정
+        snapTo: (progress, self) => {//snapTo함수는 현재 스크롤 진행 상황(progress)과 slef객체를 인자로 받아 스냅위치를 계산합니다.
+          
+          //각 패널의 시작 위치를 배열로 저장하빈다.
+          let panelStarts = tops.map(st => st.start)
 
-          //각 패널의 시작 위치를 배열로 저장
-          let panelStarts = tops.map(st => st.start);
+          //현재 스크롤 위치(self.scroll)를 가장 가까운 패널 시작위치로 스냅합니다.
+          let snapScroll = gsap.utils.snap(panelStarts, self.scroll())
 
-          //현재 스크롤 위치(self.scroll)를 가장 가까운 패널 시작위치로 스냅
-          let snapScroll = gsap.utils.snap(panelStarts, self.scroll());
-
-          //gsap.utils.normalize는 스크롤 위치를 페이지 전체 범위내에서 정규화
-          return gsap.util.normalize(0, ScrollTrigger.maxScroll(window), snapScroll);
+          //gsap.utils.normalize는 스크롤 위치를 페이지 전체 범위내에서 정규화합니다.
+          return gsap.utils.normalize(0, ScrollTrigger.maxScroll(window), snapScroll);
         },
-        duration: 0.2;
+        duration:0.5 //스냅 애니메이션의 지속 시간을 설정
       }
     })
   </script>
 </body>
 
 </html>
-
-
-
-
-
-
-
-
-
